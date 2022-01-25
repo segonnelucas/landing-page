@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "canvas-scroll-clip": "^1.1.0",
-    "jquery": "^3.6.0"
+    "jquery": "^3.6.0",
+    "tween.js": "^16.6.0"
   }
 }
