@@ -1,6 +1,7 @@
 import "./styles.scss";
 import CanvasScrollClip from "canvas-scroll-clip";
 import tween from "tween.js";
+import * as THREE from "three";
 import $ from "jquery";
 window.jQuery = $;
 window.$ = $;
@@ -14,6 +15,14 @@ let lastScrollTop = 0,
   headerContainer = $(".header__wrapper"),
   rightAirpod = $(".img-right"),
   transition = $(".transition");
+//Init Variable three js
+let camera, scene, renderer, group;
+let geometry, material, mesh, mesh2, mesh3, mesh4, mesh5, mesh6;
+let vector, vector2, vector3, vector4, vector5;
+let mouseX = 0,
+  mouseY = 0;
+let windowHalfX = window.innerWidth / 2,
+  windowHalfY = window.innerHeight / 2;
 
 // Document Event
 $(document).ready(() => {
@@ -24,8 +33,10 @@ $(document).ready(() => {
     animateHeader();
   });
 });
+
 $(window).bind("load", function () {
   appearHeader();
+  init();
 });
 
 // ScrollCanvasClip
@@ -99,13 +110,72 @@ const animateHeader = () => {
       opacity: "1",
     });
   }
-  if (scrollPos > 800) {
-  } else {
-  }
 };
 
 var t = new tween.Tween(/* etc */);
 t.start();
+
+function init() {
+  camera = new THREE.PerspectiveCamera(
+    70,
+    window.innerWidth / window.innerHeight,
+    0.01,
+    10
+  );
+  camera.position.z = 11;
+
+  group = new THREE.Group();
+  scene = new THREE.Scene();
+  geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+  material = new THREE.MeshNormalMaterial();
+
+  mesh = new THREE.Mesh(geometry, material);
+  mesh2 = new THREE.Mesh(geometry, material);
+  mesh3 = new THREE.Mesh(geometry, material);
+  mesh4 = new THREE.Mesh(geometry, material);
+  mesh5 = new THREE.Mesh(geometry, material);
+
+  group.add(mesh, mesh2, mesh3, mesh4, mesh5);
+  scene.add(group);
+
+  mesh.position.set(0, 0.5, 0);
+  mesh2.position.set(0.4, 0.2, 0);
+  mesh3.position.set(-0.4, 0.2, 0);
+  mesh4.position.set(0.3, -0.3, 0);
+  mesh5.position.set(-0.3, -0.3, 0);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.querySelector("#threejs").appendChild(renderer.domElement);
+  document.addEventListener("mousemove", onDocumentMouseMove);
+  document.addEventListener("scroll", onDocumentScroll);
+}
+
+function onDocumentScroll(event) {
+  const scrollPos = window.scrollY;
+
+  if (scrollPos > 800) {
+    let valueZoom = normalizeMath(scrollPos, 800, 3500, 11, 0);
+    console.log(valueZoom);
+    camera.position.z = valueZoom;
+  } else {
+    camera.position.z = 11;
+  }
+  renderer.render(scene, camera);
+}
+
+function onDocumentMouseMove(event) {
+  mouseX = event.clientX - windowHalfX;
+  mouseY = event.clientY - windowHalfY;
+  camera.position.x = -mouseX / 5000;
+  camera.position.y = mouseY / 5000;
+  renderer.render(scene, camera);
+}
+
+function normalizeMath(val, minVal, maxVal, newMin, newMax) {
+  return newMin + ((val - minVal) * (newMax - newMin)) / (maxVal - minVal);
+}
 
 // Tween test
 // $.fn.parallax = function (resistance, mouse) {
