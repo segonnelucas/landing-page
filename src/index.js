@@ -17,8 +17,7 @@ let lastScrollTop = 0,
   transition = $(".transition");
 //Init Variable three js
 let camera, scene, renderer, group;
-let geometry, material, mesh, mesh2, mesh3, mesh4, mesh5, mesh6;
-let vector, vector2, vector3, vector4, vector5;
+let geometry, material, line, mesh, mesh2, mesh3, mesh4, mesh5, plane;
 let mouseX = 0,
   mouseY = 0;
 let windowHalfX = window.innerWidth / 2,
@@ -125,8 +124,9 @@ function init() {
   camera.position.z = 11;
 
   group = new THREE.Group();
+
   scene = new THREE.Scene();
-  geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+  geometry = new THREE.RingGeometry(0.05, 0.06, 32);
   material = new THREE.MeshNormalMaterial();
 
   mesh = new THREE.Mesh(geometry, material);
@@ -137,6 +137,7 @@ function init() {
 
   group.add(mesh, mesh2, mesh3, mesh4, mesh5);
   scene.add(group);
+  scene.add(line);
 
   mesh.position.set(0, 0.5, 0);
   mesh2.position.set(0.4, 0.2, 0);
@@ -157,8 +158,9 @@ function onDocumentScroll(event) {
 
   if (scrollPos > 800) {
     let valueZoom = normalizeMath(scrollPos, 800, 3500, 11, 0);
-    console.log(valueZoom);
+    let rotateZoom = normalizeMath(scrollPos, 800, 3500, 0, 1);
     camera.position.z = valueZoom;
+    group.rotation.z = rotateZoom;
   } else {
     camera.position.z = 11;
   }
@@ -177,18 +179,8 @@ function normalizeMath(val, minVal, maxVal, newMin, newMax) {
   return newMin + ((val - minVal) * (newMax - newMin)) / (maxVal - minVal);
 }
 
-// Tween test
-// $.fn.parallax = function (resistance, mouse) {
-//   $el = $(this);
-//   TweenLite.to($el, 0.2, {
-//     x: -((mouse.clientX - window.innerWidth / 2) / resistance),
-//     y: -((mouse.clientY - window.innerHeight / 2) / resistance),
-//   });
-// };
-
-// $(document).mousemove(function (e) {
-//   $(".rock1").parallax(-30, e);
-//   $(".rock2").parallax(10, e);
-//   $(".rock3").parallax(20, e);
-//   $(".rock4").parallax(30, e);
-// });
+function rotateObject(object, degreeX = 0, degreeY = 0, degreeZ = 0) {
+  object.rotateX(THREE.Math.degToRad(degreeX));
+  object.rotateY(THREE.Math.degToRad(degreeY));
+  object.rotateZ(THREE.Math.degToRad(degreeZ));
+}
